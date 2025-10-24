@@ -1,5 +1,4 @@
 window.onload = function () {
-
   const namePrompt = document.createElement("div");
   namePrompt.style.position = "fixed";
   namePrompt.style.top = "0";
@@ -25,6 +24,7 @@ window.onload = function () {
   if (!savedName) {
     document.body.appendChild(namePrompt);
     document.body.style.overflow = "hidden";
+
     const submitUserName = namePrompt.querySelector("#submitUserName");
     submitUserName.addEventListener("click", function () {
       const name = namePrompt.querySelector("#userNameInput").value.trim();
@@ -33,26 +33,21 @@ window.onload = function () {
         return;
       }
 
-      localStorage.setItem("userName", name);
+      sessionStorage.setItem("userName", name); // pakai sessionStorage
       namePrompt.remove();
       document.body.style.overflow = "auto";
 
       const welcomeEl = document.querySelector("h1.animate-slide-in");
       if (welcomeEl) welcomeEl.innerHTML = `Welcome, ${name}!`;
-
-      document.body.style.opacity = 0;
-      document.body.style.transition = "opacity 0.6s ease";
-      setTimeout(() => (document.body.style.opacity = 1), 100);
     });
   } else {
-
     const welcomeEl = document.querySelector("h1.animate-slide-in");
     if (welcomeEl) welcomeEl.innerHTML = `Welcome, ${savedName}!`;
   }
 
+
   const submitBtn = document.querySelector("button[type='submit']");
   const resultDiv = document.querySelector(".result-card");
-  const revealElements = document.querySelectorAll(".reveal-on-scroll");
 
   if (submitBtn && resultDiv) {
     resultDiv.style.display = "none";
@@ -69,10 +64,10 @@ window.onload = function () {
 
       let birthFormatted = "";
       if (birthRaw) {
-        try {
-          const d = new Date(birthRaw);
+        const d = new Date(birthRaw);
+        if (!isNaN(d)) {
           birthFormatted = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
-        } catch {
+        } else {
           birthFormatted = birthRaw;
         }
       }
@@ -85,28 +80,23 @@ window.onload = function () {
       }
 
       resultDiv.style.display = "block";
+      resultDiv.style.opacity = 0;
+      setTimeout(() => (resultDiv.style.opacity = 1), 100);
 
-      const fullNameEl = document.getElementById("fullName");
-      const birthEl = document.getElementById("birthDate");
-      const emailEl = document.getElementById("emailResult");
-      const phoneEl = document.getElementById("phoneResult");
-      const genderEl = document.getElementById("genderResult");
-      const messageEl = document.getElementById("messageResult");
-      const currentTimeEl = document.getElementById("currentTime");
-
-      if (fullNameEl) fullNameEl.textContent = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : "-";
-      if (birthEl) birthEl.textContent = birthFormatted || "-";
-      if (emailEl) emailEl.textContent = email || "-";
-      if (phoneEl) phoneEl.textContent = phone || "-";
-      if (genderEl) genderEl.textContent = genderText || "-";
-      if (messageEl) messageEl.textContent = message || "-";
-      if (currentTimeEl) currentTimeEl.textContent = new Date().toLocaleString();
+      document.getElementById("fullName").textContent = (firstName || lastName) ? `${firstName} ${lastName}`.trim() : "-";
+      document.getElementById("birthDate").textContent = birthFormatted || "-";
+      document.getElementById("emailResult").textContent = email || "-";
+      document.getElementById("phoneResult").textContent = phone || "-";
+      document.getElementById("genderResult").textContent = genderText || "-";
+      document.getElementById("messageResult").textContent = message || "-";
+      document.getElementById("currentTime").textContent = new Date().toLocaleString();
 
       const form = submitBtn.closest("form");
       if (form) form.reset();
     });
   }
 
+  const revealElements = document.querySelectorAll(".reveal-on-scroll");
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -118,6 +108,5 @@ window.onload = function () {
     },
     { threshold: 0.2 }
   );
-
   revealElements.forEach((el) => observer.observe(el));
 };
